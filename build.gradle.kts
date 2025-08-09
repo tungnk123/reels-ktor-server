@@ -10,6 +10,10 @@ application {
     mainClass = "com.tungnk123.ApplicationKt"
 }
 
+ktor {
+    development = true
+}
+
 dependencies {
     implementation(libs.ktor.server.default.headers)
     implementation(libs.ktor.server.compression)
