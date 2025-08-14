@@ -2,15 +2,14 @@ package com.tungnk123
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.compression.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.plugins.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import kotlinx.serialization.json.Json
 
 object Clients {
     private val sessionId = System.getenv("IG_SESSION_ID") ?: ""
@@ -20,7 +19,6 @@ object Clients {
     val instagramHttpClient = HttpClient(CIO) {
         expectSuccess = false
         install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true; isLenient = true }) }
-        install(Logging) { level = LogLevel.INFO }
         install(ContentEncoding) { gzip(); deflate(); identity() }
         install(HttpTimeout) {
             connectTimeoutMillis = 10_000
