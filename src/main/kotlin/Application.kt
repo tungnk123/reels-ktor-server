@@ -11,6 +11,7 @@ fun main() {
 
 fun Application.module() {
     configureHTTP()
+    configureClient()
     configureMonitoring()
     configureSerialization()
     configureRouting()
