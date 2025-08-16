@@ -1,17 +1,28 @@
 package mapper
 
-import com.tungnk123.model.ReelsMediaResponse
 import model.StoryDTO
+import model.StoryItem
 
-fun mapItemToDTO(item: ReelsMediaResponse.Item): StoryDTO {
-    val videos = item.videoVersions?.map { it.url }.orEmpty()
-    val image = item.image?.candidates?.firstOrNull()?.url
-    val type = if (videos.isNotEmpty()) "video" else "image"
+fun mapItemToDTO(item: StoryItem): StoryDTO {
+    val videoUrls = item.videoVersions?.map { it.url } ?: emptyList()
+
+    val imageUrl = item.imageVersions2
+        ?.candidates
+        ?.maxByOrNull { it.width ?: 0 }
+        ?.url
+
+    val type = when {
+        item.mediaType == 2 -> "video"
+        item.mediaType == 1 -> "image"
+        videoUrls.isNotEmpty() -> "video"
+        else -> "image"
+    }
+
     return StoryDTO(
         id = item.id,
         type = type,
-        videoUrls = videos,
-        imageUrl = image,
+        videoUrls = videoUrls,
+        imageUrl = imageUrl,
         caption = item.caption?.text.orEmpty(),
         duration = item.videoDuration,
         hasAudio = item.hasAudio,

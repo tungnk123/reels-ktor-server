@@ -18,7 +18,14 @@ object Clients {
 
     val instagramHttpClient = HttpClient(CIO) {
         expectSuccess = false
-        install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true; isLenient = true }) }
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                explicitNulls = false
+                prettyPrint = true
+            })
+        }
         install(ContentEncoding) { gzip(); deflate(); identity() }
         install(HttpTimeout) {
             connectTimeoutMillis = 10_000
