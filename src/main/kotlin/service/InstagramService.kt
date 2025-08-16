@@ -19,14 +19,12 @@ object InstagramService {
             url { parameters.append("username", username) }
         }
         val raw = res.bodyAsText()
-        println("📥 web_profile_info JSON:\n$raw")
 
         if (res.status != HttpStatusCode.OK) {
             println("❌ HTTP Error (web_profile_info): ${res.status}")
             return null
         }
 
-        // Parse từ raw để thống nhất và an toàn
         val body = runCatching { json.decodeFromString<WebProfileResponse>(raw) }
             .onFailure { e -> println("❌ Parse web_profile_info failed: ${e.message}") }
             .getOrNull() ?: return null
@@ -39,7 +37,6 @@ object InstagramService {
             url { parameters.append("reel_ids", userId) }
         }
         val raw = res.bodyAsText()
-        println("📥 reels_media JSON:\n$raw")
 
         if (res.status != HttpStatusCode.OK) {
             println("❌ HTTP Error (reels_media): ${res.status}")
@@ -50,7 +47,6 @@ object InstagramService {
             .onFailure { e -> println("❌ Parse reels_media failed: ${e.message}") }
             .getOrNull() ?: return null
 
-        println("✅ Parsed reels_media • reels=${body.reels.size} • keys=${body.reels.keys}")
 
         val reel = body.reels.values.firstOrNull()
         reel?.let {
@@ -111,5 +107,19 @@ object InstagramService {
                 else -> null
             }
         }
+    }
+
+    suspend fun getWebProfileInfoRaw(username: String): String? {
+        val res = Clients.instagramHttpClient.get("/api/v1/users/web_profile_info/") {
+            url { parameters.append("username", username) }
+        }
+        return if (res.status == HttpStatusCode.OK) res.bodyAsText() else null
+    }
+
+    suspend fun getReelsMediaRaw(userId: String): String? {
+        val res = Clients.instagramHttpClient.get("/api/v1/feed/reels_media/") {
+            url { parameters.append("reel_ids", userId) }
+        }
+        return if (res.status == HttpStatusCode.OK) res.bodyAsText() else null
     }
 }
