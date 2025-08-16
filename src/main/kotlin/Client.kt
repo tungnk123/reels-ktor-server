@@ -1,10 +1,12 @@
 package com.tungnk123
 
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.compression.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -12,9 +14,12 @@ import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
 object Clients {
-    private val sessionId = System.getenv("IG_SESSION_ID") ?: ""
-    private val appId = System.getenv("IG_APP_ID") ?: "567067343352427"
-    private val userAgent = System.getenv("IG_UA") ?: "Instagram 261.0.0.21.111 Android"
+    private val dotenv = dotenv()
+
+    private val sessionId = dotenv["IG_SESSION_ID"] ?: ""
+    private val appId = dotenv["IG_APP_ID"] ?: "567067343352427"
+    private val userAgent = dotenv["IG_UA"] ?: "Instagram 261.0.0.21.111 Android"
+
 
     val instagramHttpClient = HttpClient(CIO) {
         expectSuccess = false
@@ -31,6 +36,18 @@ object Clients {
             connectTimeoutMillis = 10_000
             requestTimeoutMillis = 20_000
             socketTimeoutMillis = 20_000
+        }
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.INFO
+            filter { request ->
+                request.url.host.contains("instagram")
+            }
+            sanitizeHeader { header ->
+                header.equals(HttpHeaders.Authorization, true) ||
+                        header.equals(HttpHeaders.Cookie, true) ||
+                        header.equals("X-IG-WWW-Claim", true)
+            }
         }
         defaultRequest {
             url { protocol = URLProtocol.HTTPS; host = "i.instagram.com" }
