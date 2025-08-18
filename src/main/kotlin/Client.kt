@@ -1,5 +1,6 @@
 package com.tungnk123
 
+import helper.EnvHelper
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -14,16 +15,15 @@ import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
 object Clients {
-    private val dotenv = dotenv()
 
     private val localEnv = dotenv {
         ignoreIfMissing = true
         ignoreIfMalformed = true
     }
 
-    private val sessionId = env(name = "IG_SESSION_ID", default = "")
-    private val appId = env(name = "IG_APP_ID", default = "567067343352427")
-    private val userAgent = env(name = "IG_UA", default = "Instagram 261.0.0.21.111 Android")
+    private val sessionId = EnvHelper.get(name = "IG_SESSION_ID", default = "")
+    private val appId = EnvHelper.get(name = "IG_APP_ID", default = "567067343352427")
+    private val userAgent = EnvHelper.get(name = "IG_UA", default = "Instagram 261.0.0.21.111 Android")
 
     private fun env(name: String, default: String): String =
         System.getenv(name) ?: localEnv[name] ?: default
